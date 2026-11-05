@@ -142,31 +142,31 @@ while not exit_flag:
     # Example for obtaining an image from the top camera with FOV = 60 deg and EV = 12 #
     ####################################################################################
 
-    if iteration % 20 == 0:  # Don't hot-loop the image captures
-        cameraParams = st.CaptureImageProperties()
-        cameraParams.nonphys_EV = 10.0
-        cameraParams.FOV = 60.0
-        cameraParams.ResolutionX = 512
-        cameraParams.ResolutionY = 512
-        image = st.camera.CaptureImageBlocking(topCamera, cameraParams)
+    #f iteration % 20 == 0:  # Don't hot-loop the image captures
+    #   cameraParams = st.CaptureImageProperties()
+    #   cameraParams.nonphys_EV = 10.0
+    #   cameraParams.FOV = 60.0
+    #   cameraParams.ResolutionX = 512
+    #   cameraParams.ResolutionY = 512
+    #   image = st.camera.CaptureImageBlocking(topCamera, cameraParams)
 
-        if image is not None:
-            imageR = np.asarray(image.as_RGB8().PixelsR).reshape((cameraParams.ResolutionX, cameraParams.ResolutionY))
-            imageG = np.asarray(image.as_RGB8().PixelsG).reshape((cameraParams.ResolutionX, cameraParams.ResolutionY))
-            imageB = np.asarray(image.as_RGB8().PixelsB).reshape((cameraParams.ResolutionX, cameraParams.ResolutionY))
-            imageRGB = Image.fromarray(np.dstack((imageR, imageG, imageB)).astype(np.uint8))
+    #   if image is not None:
+    #       imageR = np.asarray(image.as_RGB8().PixelsR).reshape((cameraParams.ResolutionX, cameraParams.ResolutionY))
+    #       imageG = np.asarray(image.as_RGB8().PixelsG).reshape((cameraParams.ResolutionX, cameraParams.ResolutionY))
+    #       imageB = np.asarray(image.as_RGB8().PixelsB).reshape((cameraParams.ResolutionX, cameraParams.ResolutionY))
+    #       imageRGB = Image.fromarray(np.dstack((imageR, imageG, imageB)).astype(np.uint8))
 
-            # OPTIONAL: SAVE THE IMAGE TO DISK FOR VIEWING
+    #       # OPTIONAL: SAVE THE IMAGE TO DISK FOR VIEWING
 
-            # savePath = os.path.join(st.path_utils.GetLocalOutputDir(), "STU4")
-            # os.makedirs(savePath, exist_ok=True)
-            # imageName = f"TestImage{str(imageNumber).zfill(4)}.png"
-            # imageRGB.save(os.path.join(savePath, imageName))
+    #       savePath = os.path.join(st.path_utils.GetLocalOutputDir(), "STU4")
+    #       os.makedirs(savePath, exist_ok=True)
+    #       imageName = f"TestImage{str(imageNumber).zfill(4)}.png"
+    #       imageRGB.save(os.path.join(savePath, imageName))
 
-            # st.OnScreenLogMessage(f"Saved camera capture to {os.path.join(savePath, imageName)}", "CameraCapture", st.Severity.Info)
-            imageNumber += 1
-        else:
-            st.OnScreenLogMessage("Failed to capture camera image :(", "CameraNoCapture", st.Severity.Info)
+    #       st.OnScreenLogMessage(f"Saved camera capture to {os.path.join(savePath, imageName)}", "CameraCapture", st.Severity.Info)
+    #       imageNumber += 1
+    #   else:
+    #       st.OnScreenLogMessage("Failed to capture camera image :(", "CameraNoCapture", st.Severity.Info)
 
     ###################################################################################
     # Example for getting the positions, closest points, range rates, and diameters   #

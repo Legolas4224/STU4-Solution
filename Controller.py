@@ -111,6 +111,8 @@ Conventions used everywhere:
 import numpy as np
 from collections import deque
 
+import rock_tracker as rt
+
 # =====================================================================================
 # 1. TRACKING - the radar forgets everything between readings, so we keep a list of rocks
 # =====================================================================================
@@ -331,7 +333,7 @@ class GoalPlanner:
 #        Main Code Start           # 
 ####################################
 
-tracker  = Tracker()             
+tracker  = rt.Tracker()             
 avoider  = Avoider()
 governor = BurnGovernor(gain=500000.0)
 

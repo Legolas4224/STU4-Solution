@@ -1,0 +1,4 @@
+[submodule "cpp-tracker"]
+	path = cpp-tracker
+	url = https://github.com/joosm4n/filtration-station.git
+	branch = barebones

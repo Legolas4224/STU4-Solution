@@ -7,4 +7,4 @@ fi
 cd cpp-tracker
 cmake -S . -B build
 cmake --build build -j4
-cp build/rock-tracker* ../.
+cp build/rock_tracker* ../.

@@ -333,9 +333,12 @@ class GoalPlanner:
 #        Main Code Start           # 
 ####################################
 
+GOAL_CRUISE_SPEED: float = 8.0
 tracker  = rt.Tracker()             
-avoider  = Avoider()
-governor = BurnGovernor(gain=500000.0)
+avoider  = rt.Avoider()
+# governor = BurnGovernor(gain=500000.0)
+governor = rt.BurnGovernor(500000.0)
+planner  = rt.GoalPlanner(GOAL_CRUISE_SPEED)
 
 ##################
 # Start the loop #
@@ -344,20 +347,26 @@ governor = BurnGovernor(gain=500000.0)
 iteration = 0
 imageNumber = 0
 exit_flag: bool = False
+t_elapsed : deque[float] = deque(maxlen=10)
+t_from_start: float = 0.0
 while not exit_flag:
 
     ################################
     # Wait between loop iterations #
     ################################
     
-    time.sleep(1.0 / this.GetParam(st.VarType.double, "LoopFreqHz"))
+    LOOP_MULT: float = 0.5 # 0.5 ~10ms avg, ~15ms p99 loop
+    time.sleep(LOOP_MULT / this.GetParam(st.VarType.double, "LoopFreqHz"))
 
     ###################################
     # Get elapsed time from sim start #
     ###################################
 
     t_now: datetime.datetime = st.SimGlobals.SimClock.GetTimeNow().as_datetime()
-    t_from_start: float = (t_now - t0).total_seconds()
+    t_last: float = t_from_start
+    t_from_start = (t_now - t0).total_seconds()
+    t_elapsed.append(t_from_start - t_last) 
+    t_elapsed_ms: float = np.average(t_elapsed) * 1000
 
     #####################################
     # Example for getting vehicle state #
@@ -390,24 +399,26 @@ while not exit_flag:
     # Calculate desired vecocity #
     ##############################
 
-    goalDirection: npt.NDArray = (targetLoc - loc) / np.linalg.norm(targetLoc - loc)
-    goalSpeed_m_s: float = 17.0
-    goalVelocity: npt.NDArray = goalSpeed_m_s * goalDirection
+    # goalDirection: npt.NDArray = (targetLoc - loc) / np.linalg.norm(targetLoc - loc)
+    # goalSpeed_m_s: float = GOAL_CRUISE_SPEED
+    # goalVelocity: npt.NDArray = goalSpeed_m_s * goalDirection
+    goalVelocity: npt.NDArray = planner.wanted_velocity(loc, vel, targetLoc)
 
     ####################################################################
     # Update tracker module with RF data and calculate a safe velocity #
     ####################################################################
 
-    tracker.update(GetNearestDebrisLocations(50), loc, t_from_start)
+    debris_locs = GetNearestDebrisLocations(500)
+    tracker.update(debris_locs, loc, t_from_start)
     safe_velocity = avoider.choose(goalVelocity, tracker.rocks, loc, t_from_start)
     accel = governor.acceleration(safe_velocity, vel)                # Phobos frame
     accel = st.frames.FramedVector(accel, phobosFrame).ExprIn(shuttleFrame)
 
-    angularAcceleration_rad_s2 =  np.array([0,0,0]) # no rotation at the moment
+    angularAcceleration_rad_s2 = np.array([0,0,0]) # no rotation at the moment
     #accel= np.array([0,0,10000])
     SetCommand(accel, angularAcceleration_rad_s2) # forward desired accelerations to the sim shuttle
 
-    st.OnScreenLogMessage(f"Current Velocity: {np.linalg.norm(vel)}\nDesired Velocity: {safe_velocity}\nFuel Used: {fuelUsed} kg", "Velocity", st.Severity.Info)
+    st.OnScreenLogMessage(f"Current Velocity: {np.linalg.norm(vel)}\nDesired Velocity: {safe_velocity}\nFuel Used: {fuelUsed} kg\nElapsed: {t_elapsed_ms} ms", "Velocity", st.Severity.Info)
 
     iteration += 1
 

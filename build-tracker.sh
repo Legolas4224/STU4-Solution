@@ -1,6 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-if [ ! -d "cpp-tracker "]; then
+DIRECTORY="cpp-tracker"
+if [ ! -d "$DIRECTORY" ]; then
     git clone --recursive --branch barebones https://github.com/joosm4n/filtration-station.git cpp-tracker
 fi
 
